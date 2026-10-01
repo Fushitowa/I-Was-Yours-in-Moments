@@ -1,0 +1,455 @@
+﻿/* ==========================================================================
+   book.css â€” the physical object
+   stage Â· boards Â· spine Â· paper Â· leaves Â· depth
+   ========================================================================== */
+
+.stage {
+  display: grid;
+  place-items: center;
+  min-height: 100svh;
+  min-height: 100dvh;
+  padding: 2rem 1rem calc(1.5rem + 3.5rem);
+  overflow-x: clip;
+}
+
+.book {
+  position: relative;
+  width: var(--book-w);
+  height: var(--page-h);
+  perspective: 2600px;
+  perspective-origin: 50% 42%;
+  transition: transform .9s var(--ease-paper);
+}
+
+/* Closed, the book is only the right half of the block, so shift it back to
+   the middle. The block itself stays centred. */
+.book[data-state="closed"] {
+  transform: translateX(calc(var(--page-w) * -.5));
+}
+
+/* The base pages carry the first and last spreads only. Everywhere else a
+   turned leaf covers them, and leaving them rendered lets a sliver of the
+   title page escape past the edge of the stack. */
+.page-slot.is-covered { visibility: hidden; }
+
+/* Nothing inside is readable until the cover lifts. is-revealing arrives
+   mid-swing, so the spread is uncovered rather than appearing at the end. */
+.book[data-state="closed"] .spread,
+.book[data-state="closed"] .leaves {
+  visibility: hidden;
+}
+
+.book.is-revealing .spread,
+.book.is-revealing .leaves {
+  visibility: visible;
+}
+
+
+.book__ambient {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 112%;
+  height: 4.5rem;
+  transform: translateX(-50%);
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, .62) 0%, rgba(0, 0, 0, .28) 45%, rgba(0, 0, 0, 0) 72%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+
+.book__block {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  transform: rotateX(4.5deg) rotateZ(-1.1deg);
+}
+
+/* --------------------------------------------------------------------------
+   Boards and spine
+   -------------------------------------------------------------------------- */
+
+.board {
+  position: absolute;
+  top: -.4rem;
+  width: var(--page-w);
+  height: calc(var(--page-h) + .8rem);
+  transform-style: preserve-3d;
+  border-radius: 2px 7px 7px 2px;
+  background: linear-gradient(115deg, var(--cover-a) 0%, var(--cover-b) 62%, var(--cover-edge) 100%);
+}
+
+.board--back {
+  left: 50%;
+  z-index: 2;
+  transform: translateZ(calc(var(--cover-depth) * -1));
+  border-radius: 7px 2px 2px 7px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .35);
+}
+
+.board--back .board__edge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 5px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, .3), rgba(0, 0, 0, .55));
+  border-radius: 0 7px 7px 0;
+}
+
+.board--front {
+  left: 50%;
+  z-index: 400;
+  transform-origin: left center;
+  transform: translateZ(var(--cover-depth));
+  cursor: pointer;
+}
+
+/* Once open, the board is underneath the page block: in a real book the open
+   front cover is the last thing you see, not the first. It still sits in
+   front of the back board, which is further behind still. */
+.book[data-state="open"] .board--front {
+  z-index: 5;
+  transform: translateZ(-1px) rotateY(-180deg);
+  border-radius: 7px 2px 2px 7px;
+  cursor: default;
+}
+
+
+.board__face {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, .35);
+}
+
+.board__face--outside {
+  background:
+    repeating-linear-gradient(112deg, rgba(255, 255, 255, .022) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(0, 0, 0, .24)),
+    linear-gradient(115deg, var(--cover-a) 0%, var(--cover-b) 62%, var(--cover-edge) 100%);
+}
+
+.board__face--outside::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: .45;
+  background: linear-gradient(105deg, rgba(255, 255, 255, .1) 0%, rgba(255, 255, 255, 0) 42%);
+  transition: opacity .45s ease;
+  pointer-events: none;
+}
+
+
+.board__face--inside {
+  transform: rotateY(180deg);
+  background:
+    repeating-linear-gradient(58deg, rgba(255, 255, 255, .05) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    radial-gradient(120% 90% at 50% 50%, rgba(255, 255, 255, .12), rgba(0, 0, 0, .14)),
+    linear-gradient(120deg, #cdbfa6 0%, #bfae92 55%, #a99878 100%);
+}
+
+.endpaper {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(58deg, rgba(255, 255, 255, .05) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    radial-gradient(120% 90% at 50% 50%, rgba(255, 255, 255, .12), rgba(0, 0, 0, .14));
+}
+
+/* --------------------------------------------------------------------------
+   Cover
+   -------------------------------------------------------------------------- */
+
+.board__face--outside {
+  display: grid;
+  place-items: center;
+  padding: 9% 10%;
+}
+
+.board__face--outside::before {
+  content: "";
+  position: absolute;
+  inset: 5.5%;
+  border: 1px solid var(--foil-dim);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.cover {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  text-align: center;
+  width: 100%;
+}
+
+.cover__eyebrow {
+  font-family: var(--font-ui);
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--foil-dim);
+}
+
+/* The title is now three words rather than one, so it is set a little smaller
+   than the old single word needed, and capped in ch units so it can never run
+   past the frame on a narrow screen. The <br> in the markup decides the break;
+   the clamp below only decides how big it is. */
+.cover__title {
+  margin: 1.1rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 5.2vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.14;
+  letter-spacing: .01em;
+  color: #f0e4cd;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
+  max-width: 22ch;
+}
+
+/* The dedication sits immediately under the title and reads as part of it, so
+   it is set in the display face with the same optical size and only slightly
+   lighter than the title. */
+.cover__dedication {
+  margin-top: .85rem;
+  font-family: var(--font-display);
+  font-size: clamp(.9rem, 2vw, 1.12rem);
+  font-style: italic;
+  letter-spacing: .06em;
+  color: rgba(240, 228, 205, .82);
+}
+
+.cover__sub {
+  margin-top: .55rem;
+  max-width: 26ch;
+  font-family: var(--font-display);
+  font-size: clamp(.82rem, 1.5vw, 1.05rem);
+  font-style: italic;
+  line-height: 1.4;
+  color: rgba(240, 228, 205, .62);
+  text-wrap: balance;
+}
+
+.cover__rule {
+  width: 4.5rem;
+  height: 1px;
+  margin: 1.4rem 0;
+  background: linear-gradient(90deg, transparent, var(--foil) 50%, transparent);
+  opacity: .75;
+}
+
+/* The author credit is set in title case rather than letterspaced capitals: it
+   is a byline, not a label, and the old uppercase treatment made a long line of
+   text read as a heading competing with the title. */
+.cover__credit {
+  font-family: var(--font-ui);
+  font-size: .62rem;
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: rgba(195, 169, 124, .62);
+}
+
+.cover__foot {
+  margin-top: .4rem;
+  font-family: var(--font-ui);
+  font-size: .55rem;
+  font-weight: 500;
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: rgba(195, 169, 124, .5);
+}
+
+
+/* The gutter shadow is the closest thing to the paper edge, so it sits in front
+   of the open cover board but behind the page block. Without this the open
+   front board paints its tan inside face into the gap between the pages. */
+.spine {
+  position: absolute;
+  top: -.4rem;
+  bottom: -.4rem;
+  left: calc(50% - 1.1rem);
+  width: 2.2rem;
+  z-index: 6;
+  transform: translateZ(-1px);
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, .28) 22%, rgba(0, 0, 0, .62) 46%, rgba(0, 0, 0, .62) 54%, rgba(0, 0, 0, .28) 78%, rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.spine__band {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 1px;
+  background: rgba(0, 0, 0, .5);
+}
+
+/* --------------------------------------------------------------------------
+   Page block edges
+   -------------------------------------------------------------------------- */
+
+.spread,
+.leaves {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  /* The wrappers span the whole book, so without this they swallow every
+     pointer event over a page they do not actually cover. */
+  pointer-events: none;
+}
+
+.spread > *,
+.leaves > * { pointer-events: auto; }
+
+
+.spread {
+  z-index: 10;
+}
+
+.leaves {
+  z-index: 100;
+}
+
+.block-edge {
+  position: absolute;
+  top: -.15rem;
+  right: -7px;
+  width: 12px;
+  height: calc(var(--page-h) + .3rem);
+  z-index: 1;
+  transform: translateZ(-2px);
+  background: repeating-linear-gradient(
+    to right,
+    rgba(214, 200, 176, .95) 0 1px,
+    rgba(178, 162, 138, .9) 1px 2px,
+    rgba(146, 130, 108, .85) 2px 3px
+  );
+  border-radius: 0 4px 4px 0;
+  box-shadow: 2px 0 8px rgba(0, 0, 0, .3);
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Paper
+   -------------------------------------------------------------------------- */
+
+.page-slot,
+.leaf__face {
+  left: 0;
+  position: absolute;
+  top: 0;
+  width: var(--page-w);
+  height: var(--page-h);
+  overflow: hidden;
+  background-color: var(--paper);
+  background-image:
+    repeating-linear-gradient(92deg, rgba(122, 102, 78, .016) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    repeating-linear-gradient(0deg, rgba(122, 102, 78, .013) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    linear-gradient(180deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, 0) 16%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%);
+  box-shadow:
+    0 0 34px rgba(58, 44, 30, .10) inset,
+    0 0 0 1px rgba(120, 102, 78, .10);
+}
+
+.page-slot--left,
+.leaf__face--back {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0) 58%, rgba(84, 66, 48, .10) 84%, rgba(58, 44, 32, .34) 100%),
+    repeating-linear-gradient(92deg, rgba(122, 102, 78, .016) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    repeating-linear-gradient(0deg, rgba(122, 102, 78, .013) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    linear-gradient(180deg, rgba(255, 255, 255, .45) 0%, rgba(255, 255, 255, 0) 16%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%);
+}
+
+.page-slot--right {
+  left: 50%;
+}
+
+.leaf__face--front,
+.leaf__face--back {
+  background-image:
+    linear-gradient(to left, rgba(0, 0, 0, 0) 58%, rgba(84, 66, 48, .10) 84%, rgba(58, 44, 32, .34) 100%),
+    repeating-linear-gradient(92deg, rgba(122, 102, 78, .016) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    repeating-linear-gradient(0deg, rgba(122, 102, 78, .013) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    linear-gradient(180deg, rgba(255, 255, 255, .5) 0%, rgba(255, 255, 255, 0) 16%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%);
+}
+
+.leaf__face--back {
+  background-image:
+    linear-gradient(to right, rgba(0, 0, 0, 0) 58%, rgba(84, 66, 48, .10) 84%, rgba(58, 44, 32, .34) 100%),
+    repeating-linear-gradient(92deg, rgba(122, 102, 78, .016) 0 1px, rgba(0, 0, 0, 0) 1px 3px),
+    repeating-linear-gradient(0deg, rgba(122, 102, 78, .013) 0 1px, rgba(0, 0, 0, 0) 1px 4px),
+    linear-gradient(180deg, rgba(255, 255, 255, .45) 0%, rgba(255, 255, 255, 0) 16%),
+    linear-gradient(180deg, var(--paper) 0%, var(--paper-warm) 100%);
+  transform: rotateY(180deg);
+}
+
+.leaf {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--page-w);
+  height: var(--page-h);
+  z-index: 100;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  --depth-from: .5px;
+  --depth-to: .5px;
+  transform: translateZ(var(--depth-to)) rotateY(0deg);
+}
+
+/* A turning leaf gets its own compositing layer and is told so ahead of the
+   first frame, so the browser is not deciding to promote it mid-rotation. The
+   hint lives on the leaf only while it turns and is dropped on the next frame. */
+.leaf.is-turning-forward,
+.leaf.is-turning-back {
+  z-index: 450;
+  will-change: transform;
+  transform: translateZ(var(--depth-to)) rotateY(0deg);
+}
+
+.leaf__face {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Each face is a single flat sheet. Nothing on it changes geometry during a
+     turn, so the browser is told not to look for layout work on the children. */
+  contain: paint;
+}
+
+.leaf.is-turned {
+  transform: translateZ(var(--depth-to)) rotateY(-180deg);
+}
+
+/* --------------------------------------------------------------------------
+   Cast shadow
+   -------------------------------------------------------------------------- */
+
+.turn-shadow {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: var(--page-w);
+  height: var(--page-h);
+  z-index: 300;
+  transform: translateZ(0.3px);
+  pointer-events: none;
+  opacity: 0;
+  background-image: linear-gradient(to right, rgba(30, 22, 16, .58) 0%, rgba(30, 22, 16, .20) 38%, rgba(30, 22, 16, 0) 74%);
+}
+
+.turn-shadow[data-cast="left-page"] {
+  left: 0;
+  background-image: linear-gradient(to left, rgba(30, 22, 16, .58) 0%, rgba(30, 22, 16, .20) 38%, rgba(30, 22, 16, 0) 74%);
+}

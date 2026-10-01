@@ -1,0 +1,407 @@
+﻿/* ==========================================================================
+   style.css â€” foundation
+   reset Â· design tokens Â· typography Â· controls Â· notices
+   ========================================================================== */
+
+:root {
+  --font-display: "Cormorant Garamond", "Hoefler Text", Georgia, "Times New Roman", serif;
+  --font-body: "EB Garamond", Georgia, Garamond, "Times New Roman", serif;
+  --font-ui: ui-sans-serif, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+  --paper: #f6f1e6;
+  --paper-warm: #efe7d8;
+  --ink: #2b2620;
+  --ink-soft: #5d5348;
+  --ink-faint: #8b8072;
+
+  --cover-a: #3a2f28;
+  --cover-b: #241d19;
+  --cover-edge: #17120f;
+  --foil: #c3a97c;
+  --foil-dim: rgba(195, 169, 124, .55);
+
+  --accent: #7a3341;
+  --focus: #b98d4e;
+
+  --page-ratio: .735;
+  --chrome: 8.75rem;
+  --page-h: min(700px, calc(100dvh - var(--chrome)), calc((100vw - 6rem) / 1.47));
+  --page-w: calc(var(--page-h) * var(--page-ratio));
+  --book-w: calc(var(--page-w) * 2);
+  --cover-depth: 7px;
+  /* The turn is the only motion the reader triggers repeatedly, so it is the one
+     duration that has to feel immediate. A long turn reads as lag even when
+     every frame is cheap. */
+  --turn-ms: 620ms;
+  --cover-ms: 1250ms;
+
+  /* --ease-paper has a deliberate slow start (0.04) that suits a board being
+     lifted and settled. A page turn must not share it: the leaf has to leave the
+     stack on the first frame or the button feels unresponsive. This curve is
+     fast off the mark and decelerates into the landing. */
+  --ease-turn: cubic-bezier(.2, .7, .25, 1);
+  --ease-paper: cubic-bezier(.45, .04, .28, 1);
+}
+
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100svh;
+  font-family: var(--font-body);
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ink);
+  background: #120f0d;
+  overflow-x: hidden;
+  overflow-x: clip;
+  overscroll-behavior-y: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(78% 62% at 50% 44%, rgba(88, 74, 62, .5) 0%, rgba(88, 74, 62, 0) 72%),
+    radial-gradient(130% 90% at 50% -6%, rgba(64, 54, 46, .55) 0%, rgba(64, 54, 46, 0) 62%),
+    linear-gradient(180deg, #221d19 0%, #14100e 62%, #0f0c0b 100%);
+}
+
+h1, h2, h3, h4, p, figure, blockquote, ul, ol {
+  margin: 0;
+  padding: 0;
+}
+
+ul, ol { list-style: none; }
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+}
+
+code {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+  font-size: .9em;
+}
+
+::selection {
+  background: rgba(195, 169, 124, .35);
+  color: #fff;
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  top: .5rem;
+  left: .5rem;
+  z-index: 100;
+  transform: translateY(-160%);
+  padding: .6rem 1rem;
+  font-family: var(--font-ui);
+  font-size: .85rem;
+  color: var(--paper);
+  background: rgba(20, 16, 14, .92);
+  border: 1px solid var(--foil-dim);
+  border-radius: 4px;
+  text-decoration: none;
+  transition: transform .18s ease;
+}
+
+.skip-link:focus { transform: translateY(0); }
+
+/* --------------------------------------------------------------------------
+   Reading controls
+   -------------------------------------------------------------------------- */
+
+.controls {
+  position: fixed;
+  inset: auto 0 0 0;
+  z-index: 30;
+  padding: .35rem max(1rem, env(safe-area-inset-left)) max(1rem, env(safe-area-inset-bottom)) max(1rem, env(safe-area-inset-right));
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .45s ease, visibility 0s linear .45s;
+}
+
+.controls[data-visible="true"] {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition: opacity .45s ease, visibility 0s;
+}
+
+.controls__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 62rem;
+  margin: 0 auto;
+  transform: translateY(.7rem);
+  transition: transform .45s var(--ease-paper);
+}
+
+.controls[data-visible="true"] .controls__inner {
+  transform: translateY(0);
+}
+
+.controls__group {
+  display: flex;
+  align-items: center;
+  gap: .4rem;
+  flex: 1 1 0;
+}
+
+.controls__group--right { justify-content: flex-end; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  min-height: 2.75rem;
+  padding: .55rem 1rem;
+  font-family: var(--font-ui);
+  font-size: .78rem;
+  font-weight: 500;
+  letter-spacing: .09em;
+  text-transform: uppercase;
+  color: rgba(246, 241, 230, .82);
+  background: rgba(246, 241, 230, .05);
+  border: 1px solid rgba(246, 241, 230, .16);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: color .2s ease, background .2s ease, border-color .2s ease, opacity .2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  color: var(--paper);
+  background: rgba(246, 241, 230, .11);
+  border-color: rgba(246, 241, 230, .32);
+}
+
+.btn:disabled {
+  opacity: .28;
+  cursor: default;
+}
+
+.btn__glyph {
+  font-size: .7em;
+  line-height: 1;
+  color: var(--foil);
+}
+
+.btn[hidden] { display: none; }
+
+.controls__meta {
+  flex: 0 1 auto;
+  min-width: 0;
+  text-align: center;
+  color: rgba(246, 241, 230, .55);
+}
+
+.controls__chapter {
+  font-family: var(--font-ui);
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.controls__folio {
+  margin-top: .35rem;
+  font-size: .72rem;
+  letter-spacing: .12em;
+  color: rgba(246, 241, 230, .32);
+}
+
+/* The reading ribbon, now a scrubber.
+
+   The visible line stays exactly as it was: 2px tall, the same width, the same
+   colours. What changed is that it is now an interactive target. The 2px line
+   cannot be grabbed by a finger, so the element is padded out to a 32px tall hit
+   area and the line is drawn inside it by .ribbon__track. The padding is what
+   makes the bar usable on touch without making the bar look different. */
+.ribbon {
+  position: relative;
+  width: 8rem;
+  height: 32px;
+  margin: -.65rem auto -.65rem;
+  background: none;
+  border-radius: 2px;
+  overflow: visible;
+  cursor: pointer;
+  /* Only here: the reader's finger drags the handle, it must not scroll the
+     page. Nothing else in the book is affected. */
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.ribbon__track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  margin-top: -1px;
+  background: rgba(246, 241, 230, .14);
+  border-radius: 2px;
+}
+
+/* Scaled, not sized. The old rule transitioned width, which relayouts the
+   ribbon and its parent on every frame of a page turn. scaleX is composited. */
+.ribbon__fill {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, var(--foil-dim), var(--foil));
+  transform: scaleX(0);
+  transform-origin: left center;
+  will-change: transform;
+  transition: transform .45s var(--ease-paper);
+}
+
+/* The handle sits above the line's own coordinate space so its centre lands on
+   the 2px rule, and its own size never affects the layout around it. */
+.ribbon__handle {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  background: var(--foil);
+  box-shadow: 0 0 0 3px rgba(246, 241, 230, .07);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transition: transform .45s var(--ease-paper), box-shadow .2s ease;
+}
+
+.ribbon:hover .ribbon__fill,
+.ribbon:focus-visible .ribbon__fill,
+.ribbon[data-active="true"] .ribbon__fill {
+  transition: transform .45s var(--ease-paper);
+}
+
+/* While dragging, the handle tracks the pointer with no easing at all. Any
+   transition here would put the handle visibly behind the finger. */
+.ribbon[data-active="true"] .ribbon__fill,
+.ribbon[data-active="true"] .ribbon__handle {
+  transition: none;
+}
+
+.ribbon:hover .ribbon__handle,
+.ribbon:focus-visible .ribbon__handle {
+  box-shadow: 0 0 0 5px rgba(246, 241, 230, .12);
+}
+
+.ribbon[data-active="true"] .ribbon__handle {
+  box-shadow: 0 0 0 6px rgba(246, 241, 230, .16);
+}
+
+.ribbon:focus { outline: none; }
+
+.ribbon:focus-visible .ribbon__handle {
+  box-shadow: 0 0 0 5px rgba(246, 241, 230, .12), 0 0 0 2px var(--focus);
+}
+
+/* The book is closed: nothing to scrub. */
+.ribbon[aria-disabled="true"] {
+  cursor: default;
+  pointer-events: none;
+}
+
+/* --------------------------------------------------------------------------
+   Notice panel
+   -------------------------------------------------------------------------- */
+
+.notice {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+  background: rgba(20, 16, 14, .94);
+  backdrop-filter: blur(6px);
+}
+
+.notice[hidden] { display: none; }
+
+.notice__panel {
+  max-width: 32rem;
+  padding: 2rem;
+  text-align: center;
+  color: var(--paper);
+  background: rgba(58, 47, 40, .6);
+  border: 1px solid var(--foil-dim);
+  border-radius: 4px;
+}
+
+.notice__title {
+  margin-bottom: .85rem;
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--foil);
+}
+
+.notice__body {
+  font-size: 1rem;
+  color: rgba(246, 241, 230, .78);
+}
+
+.notice__code {
+  margin: 1.1rem 0 .85rem;
+  padding: .85rem 1rem;
+  font-size: .88rem;
+  color: var(--paper);
+  background: rgba(20, 16, 14, .8);
+  border: 1px solid rgba(246, 241, 230, .12);
+  border-radius: 3px;
+  overflow-x: auto;
+}
+
+.notice__foot {
+  font-size: .9rem;
+  color: rgba(246, 241, 230, .6);
+}
+
+.notice code { color: var(--foil); }

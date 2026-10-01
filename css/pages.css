@@ -1,0 +1,717 @@
+﻿/* ==========================================================================
+   pages.css â€” what lives on the paper
+   chapter openers Â· body copy Â· quotes Â· folios Â· end matter
+   ========================================================================== */
+
+.page-slot,
+.leaf__face {
+  --pad-outer: 8.5%;
+  --pad-inner: 6.5%;
+  --pad-top: 11%;
+  --pad-foot: 12%;
+}
+
+.chapter {
+  position: relative;
+  height: 100%;
+  padding: var(--pad-top) var(--pad-outer) var(--pad-foot) var(--pad-inner);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  color: var(--ink);
+}
+
+.chapter::-webkit-scrollbar { display: none; }
+
+.page-slot--left .chapter,
+.leaf__face--back .chapter {
+  padding-right: var(--pad-inner);
+  padding-left: var(--pad-outer);
+}
+
+.page-slot--right .chapter,
+.leaf__face--front .chapter {
+  padding-left: var(--pad-inner);
+  padding-right: var(--pad-outer);
+}
+
+.chapter > * + * { margin-top: 1.05em; }
+
+.chapter p {
+  font-size: 1.03rem;
+  line-height: 1.78;
+  text-align: justify;
+  text-justify: inter-word;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+  orphans: 2;
+  widows: 2;
+}
+
+/* --------------------------------------------------------------------------
+   Chapter opener
+   -------------------------------------------------------------------------- */
+
+.chapter--opener {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.chapter--opener .opener__number {
+  font-family: var(--font-display);
+  font-size: clamp(2.6rem, 7vw, 4.2rem);
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: .06em;
+  color: var(--foil);
+  text-align: center;
+}
+
+.opener__rule {
+  width: 3.2rem;
+  height: 1px;
+  margin: 1.5rem auto;
+  background: linear-gradient(90deg, transparent, var(--foil-dim) 22%, var(--foil) 50%, var(--foil-dim) 78%, transparent);
+}
+
+.chapter--opener .opener__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.7rem, 4.4vw, 2.5rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.chapter--opener .opener__epigraph {
+  max-width: 24ch;
+  margin: 0 auto;
+  font-size: .98rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--ink-soft);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* The page is the constraint, not the text. Body copy is set at the size a
+   printed book would use, because at web sizes a section runs well past the
+   foot of the page and every turn becomes a scroll instead of a page. */
+.chapter--page {
+  --pad-top: 8%;
+  --pad-foot: 9.5%;
+  font-size: .84rem;
+  line-height: 1.54;
+}
+
+.chapter--page p {
+  font-size: inherit;
+  line-height: inherit;
+  margin-bottom: .55em;
+}
+.chapter--page p:last-child { margin-bottom: 0; }
+
+
+.chapter--page .pullquote {
+  margin: 1em 0;
+  padding: .1rem 0 .1rem 1rem;
+  font-size: .98rem;
+}
+
+.chapter--page .promises { margin: .9em 0; padding: .8rem 0; }
+.chapter--page .promises li { font-size: .85rem; line-height: 1.5; }
+.chapter--page .promises li + li { margin-top: .4rem; }
+
+.chapter--page .signature { margin-top: 1.3rem; }
+.chapter--page .signature__name { font-size: 1.3rem; }
+
+/* --------------------------------------------------------------------------
+   Text page
+   -------------------------------------------------------------------------- */
+
+.chapter--page .chapter__running {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  font-family: var(--font-ui);
+  font-size: .55rem;
+  font-weight: 500;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  padding-bottom: .5rem;
+  margin-bottom: .85rem;
+  border-bottom: 1px solid rgba(120, 102, 78, .16);
+}
+
+.chapter--page .chapter__running .run-recto { display: none; }
+
+.leaf__face--back .chapter__running .run-recto,
+.page-slot--left .chapter__running .run-recto { display: none; }
+
+.leaf__face--back .chapter__running .run-verso,
+.page-slot--left .chapter__running .run-verso { display: inline; }
+
+.leaf__face--front .chapter__running .run-verso { display: none; }
+.leaf__face--front .chapter__running .run-recto { display: inline; }
+
+.chapter--page .section__title {
+  font-family: var(--font-display);
+  font-size: clamp(1.12rem, 2.5vw, 1.45rem);
+  font-weight: 600;
+  line-height: 1.18;
+  color: var(--ink);
+  margin-bottom: .85rem;
+  text-wrap: balance;
+}
+
+.chapter--page .section__title .section__num {
+  display: block;
+  margin-bottom: .3rem;
+  font-family: var(--font-ui);
+  font-size: .52rem;
+  font-weight: 500;
+  letter-spacing: .3em;
+  color: var(--foil);
+}
+
+/* Only pages that open on narration take a drop cap. */
+.chapter--page p.opener-p::first-letter {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 2.8em;
+  font-weight: 600;
+  line-height: .82;
+  padding: .06em .09em 0 0;
+  color: var(--accent);
+}
+
+.chapter--page p { margin-bottom: .85em; }
+.chapter--page p:last-child { margin-bottom: 0; }
+
+/* Spoken lines sit apart from narration. */
+.chapter--page .speech {
+  margin: .72em 0;
+  padding-left: 1.1rem;
+  border-left: 2px solid rgba(195, 169, 124, .45);
+  font-size: .86rem;
+  font-style: italic;
+  color: var(--ink);
+  text-align: left;
+  hyphens: none;
+}
+
+/* A short line that stands on its own. */
+.chapter--page .beat {
+  margin: .68em 0;
+  font-style: italic;
+  text-align: center;
+  color: var(--ink-soft);
+  hyphens: none;
+}
+
+/* The laughing beats are the voice of the letter, not a joke to decorate. */
+.chapter--page .laugh {
+  margin: .8em 0;
+  font-family: var(--font-display);
+  font-size: .94rem;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-align: center;
+  color: var(--accent);
+  hyphens: none;
+}
+
+/* A page that carries the rest of a section. No title and no drop cap: the
+   reader is mid-section, and pretending otherwise would be a lie. */
+.chapter--page--cont::before {
+  content: "continued";
+  display: block;
+  margin-bottom: .95rem;
+  padding-bottom: .5rem;
+  border-bottom: 1px solid rgba(120, 102, 78, .16);
+  font-family: var(--font-ui);
+  font-size: .55rem;
+  font-weight: 500;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.chapter--page .tl { hyphens: none; }
+
+
+.chapter--page .chapter__close {
+  margin-top: 1.25rem;
+  padding-top: .8rem;
+  border-top: 1px solid rgba(120, 102, 78, .16);
+  font-family: var(--font-ui);
+  font-size: .55rem;
+  font-weight: 500;
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--ink-faint);
+}
+
+.chapter--page .mark {
+  background: linear-gradient(transparent 56%, rgba(195, 169, 124, .42) 56%);
+  padding: 0 .12em;
+}
+
+.pullquote {
+  margin: 1.6rem 0;
+  padding: 0 0 0 1.1rem;
+  border-left: 2px solid var(--foil-dim);
+  font-family: var(--font-display);
+  font-size: 1.22rem;
+  font-style: italic;
+  line-height: 1.55;
+  color: var(--ink-soft);
+  text-align: left;
+  hyphens: none;
+}
+
+.pullquote cite {
+  display: block;
+  margin-top: .6rem;
+  font-family: var(--font-ui);
+  font-size: .62rem;
+  font-style: normal;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+}
+
+.promises {
+  margin: 1.5rem 0;
+  border-top: 1px solid rgba(120, 102, 78, .18);
+  border-bottom: 1px solid rgba(120, 102, 78, .18);
+  padding: 1.1rem 0;
+}
+
+.promises li {
+  position: relative;
+  padding-left: 1.5rem;
+  font-size: 1.02rem;
+  line-height: 1.7;
+  text-align: left;
+}
+
+.promises li + li { margin-top: .6rem; }
+
+.promises li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: .72em;
+  width: .4rem;
+  height: 1px;
+  background: var(--foil);
+}
+
+.promises--numbered {
+  counter-reset: promise;
+}
+
+.promises--numbered li {
+  padding-left: 1.9rem;
+}
+
+.promises--numbered li::before {
+  content: counter(promise);
+  top: 0;
+  width: auto;
+  height: auto;
+  background: none;
+  font-family: var(--font-ui);
+  font-size: .68rem;
+  letter-spacing: .08em;
+  color: var(--foil);
+  counter-increment: promise;
+}
+
+.signature {
+  margin-top: 2rem;
+  text-align: right;
+}
+
+.signature__name {
+  font-family: var(--font-display);
+  font-size: 1.55rem;
+  line-height: 1.2;
+  color: var(--ink);
+}
+
+.signature__note {
+  margin-top: .3rem;
+  font-size: .88rem;
+  font-style: italic;
+  color: var(--ink-faint);
+  text-align: right;
+}
+
+/* --------------------------------------------------------------------------
+   End matter
+   -------------------------------------------------------------------------- */
+
+.chapter--end {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.chapter--end .end__mark {
+  font-family: var(--font-display);
+  font-size: 2.6rem;
+  font-style: italic;
+  line-height: 1;
+  color: var(--foil);
+}
+
+.chapter--end .end__rule {
+  width: 2.4rem;
+  height: 1px;
+  margin: 1.4rem 0;
+  background: var(--foil-dim);
+}
+
+.chapter--end .end__line {
+  max-width: 26ch;
+  font-size: .98rem;
+  font-style: italic;
+  line-height: 1.75;
+  color: var(--ink-soft);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* --------------------------------------------------------------------------
+   Chapter Two — pages set close to the reader
+
+   Chapter One was about a memory. Chapter Two is about the person reading
+   it, so these pages carry more air, a calmer measure, and a few lines given
+   room to stand alone. The tone stays in the same book: same paper, same ink,
+   same quiet rules. Nothing decorative, nothing romantic.
+   -------------------------------------------------------------------------- */
+
+/* An epigraph page, for the handful of lines the chapter turns on. */
+.quote-page {
+  margin: 1.4em 0 .3em;
+  padding: .9rem 0;
+  border-top: 1px solid rgba(120, 102, 78, .16);
+  border-bottom: 1px solid rgba(120, 102, 78, .16);
+  text-align: center;
+  hyphens: none;
+}
+
+.quote-page__line {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.16rem;
+  font-style: italic;
+  line-height: 1.5;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.quote-page__line + .quote-page__line { margin-top: .28em; }
+
+/* The two statements the chapter is built around. Set apart, never decorated. */
+.confession {
+  margin: 1.3em 0;
+  padding: 0;
+  border: 0;
+  text-align: center;
+  hyphens: none;
+}
+
+.confession__line {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.62rem;
+  font-weight: 600;
+  font-style: normal;
+  line-height: 1.28;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.confession--quiet .confession__line {
+  font-size: 1.24rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+/* Give the confession pages more air than a text page needs. */
+.chapter--page--confession,
+.chapter--page--one-line {
+  --pad-top: 10%;
+}
+
+.chapter--page--confession .confession,
+.chapter--page--one-line .confession { margin: 1.9em 0; }
+
+.chapter--page--one-line .confession__line { font-size: 1.78rem; }
+
+/* --------------------------------------------------------------------------
+   Chapter Three — the two lines that get a page to themselves
+
+   "That guy was me." and "And this chapter is for you." are the last things
+   the narrator says before the book moves on, so they are set large and alone
+   with the measure of the page doing the work instead of any ornament.
+   -------------------------------------------------------------------------- */
+
+.chapter--page--vow { --pad-top: 14%; }
+
+/* Column, not row: a vow is one or more stacked lines, and more than one of
+   them has to read as a single statement rather than two side by side. */
+.vow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 62%;
+  margin: 0;
+  text-align: center;
+  hyphens: none;
+}
+
+/* --------------------------------------------------------------------------
+   Chapter Four — the chapter that turns inward
+
+   Acceptance starts in the dark and ends in the light. Rather than restyle the
+   whole chapter, the pages carry a tone modifier that shifts the paper and the
+   ink a few degrees: --dim for the opening pages that are still resisting, and
+   --bright for the closing pages that have decided to move. Both stay inside
+   the book's existing palette, so the paper still looks like the same paper.
+   -------------------------------------------------------------------------- */
+
+.chapter--page--dim {
+  --paper-tint: rgba(58, 44, 30, .045);
+  --ink-tint: rgba(43, 38, 32, .82);
+}
+
+.chapter--page--bright {
+  --paper-tint: rgba(255, 250, 238, .5);
+  --ink-tint: rgba(43, 38, 32, 1);
+}
+
+.chapter--page--dim .chapter { background: var(--paper-tint); }
+.chapter--page--dim .chapter p,
+.chapter--page--dim .chapter .section__title { color: var(--ink-tint); }
+
+.chapter--page--bright .chapter { background: var(--paper-tint); }
+.chapter--page--bright .chapter p,
+.chapter--page--bright .chapter .section__title { color: var(--ink-tint); }
+
+/* The chapter title page opens the turn into the new section, so it gets a
+   touch more air above the numeral than the earlier openers did. */
+.chapter--opener--settle { --pad-top: 13%; }
+
+/* The four choices, set apart. A page of statements, so it reads as a list
+   rather than as prose. */
+.choices {
+  margin: 1.4em 0;
+  padding: 0;
+  border: 0;
+  text-align: center;
+  hyphens: none;
+}
+
+.choices__line {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  line-height: 1.34;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.choices__line + .choices__line { margin-top: .34em; }
+
+/* The last line of the chapter. It gets the largest setting in the book and a
+   slow fade, because it is the sentence the whole chapter was building to. */
+.vow--finale { min-height: 66%; }
+
+.vow--finale .vow__line {
+  font-size: 2.15rem;
+  line-height: 1.34;
+}
+
+.vow--finale .vow__line + .vow__line { margin-top: .5em; }
+
+.chapter--page--finale .chapter__close { margin-top: 2rem; }
+
+.vow__line {
+  display: block;
+  font-family: var(--font-display);
+  font-size: 1.92rem;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+/* The second one is quieter still: it is an aside, not a declaration. */
+.vow--quiet .vow__line {
+  font-size: 1.42rem;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------------------
+   Chapter closing
+
+   Deliberately quiet. The reader has just been told something serious, so the
+   page says almost nothing and hands the turn back to them.
+   -------------------------------------------------------------------------- */
+
+.chapter--closing {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.chapter--closing .closing__chapter {
+  font-family: var(--font-ui);
+  font-size: .55rem;
+  font-weight: 500;
+  letter-spacing: .3em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  text-align: center;
+}
+
+.closing__title {
+  margin: .9rem 0 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.6rem, 4vw, 2.2rem);
+  font-weight: 600;
+  line-height: 1.15;
+  color: var(--ink);
+  text-wrap: balance;
+}
+
+.closing__rule {
+  width: 2.4rem;
+  height: 1px;
+  margin: 1.5rem 0;
+  background: linear-gradient(90deg, transparent, var(--foil-dim) 22%, var(--foil) 50%, var(--foil-dim) 78%, transparent);
+}
+
+.chapter--closing .closing__line {
+  font-family: var(--font-ui);
+  font-size: .58rem;
+  font-weight: 500;
+  letter-spacing: .24em;
+  text-transform: uppercase;
+  color: var(--foil);
+  text-align: center;
+}
+
+.chapter--closing .closing__turn {
+  max-width: 22ch;
+  margin-top: 1.6rem;
+  font-size: .84rem;
+  font-style: italic;
+  line-height: 1.7;
+  color: var(--ink-faint);
+  text-align: center;
+  text-wrap: pretty;
+}
+
+/* Chapter Three closes on warmth rather than weight: the same quiet page and the
+   same single rule, but the title is set in an italic hand so the chapter ends
+   on a gentler note than the apology that came before it. */
+.chapter--closing--warm .closing__title {
+  font-style: italic;
+  font-weight: 400;
+}
+
+/* --------------------------------------------------------------------------
+   Chapter Five
+
+   The end of the book gets three things the other chapters do not: a page
+   that leads into the final words with more air, the signature set centred and
+   large rather than in the margin, and a closing page with nothing on it at
+   all except THE END. The longer the fade on that last page, the more the
+   reader is meant to feel the book stopping.
+   -------------------------------------------------------------------------- */
+
+.chapter--page--finale-lead { --pad-top: 12%; }
+
+/* The last page carries a running head, a section title, two lines of text, the
+   final vow and the signature. It cannot also afford the generous vertical
+   centring the other vow pages use, so the air comes from the padding instead. */
+.chapter--page--lastwords { --pad-top: 8%; }
+.chapter--page--lastwords .vow--finale { min-height: 0; margin: 1.1em 0; }
+.chapter--page--lastwords .vow--finale .vow__line { font-size: 1.5rem; }
+.chapter--page--lastwords .signature--finale { margin-top: 1rem; }
+
+/* "— Kent" is the last thing the narrator says, so it is centred and given
+   the weight of a signature line without sitting in the margin like the
+   smaller signatures elsewhere in the book. */
+.chapter--page .signature--finale {
+  margin-top: 1.6rem;
+  text-align: center;
+}
+
+.chapter--page .signature--finale .signature__name {
+  font-family: var(--font-display);
+  font-size: 1.7rem;
+  font-weight: 600;
+  letter-spacing: .04em;
+  color: var(--ink);
+}
+
+.chapter--end--finale .end__mark--finale {
+  font-size: 1.9rem;
+  font-weight: 400;
+  font-style: normal;
+  letter-spacing: .42em;
+  text-indent: .42em;
+  color: var(--ink-faint);
+}
+
+/* --------------------------------------------------------------------------
+   Folio
+   -------------------------------------------------------------------------- */
+
+.folio {
+  position: absolute;
+  bottom: 4.2%;
+  font-family: var(--font-display);
+  font-size: .86rem;
+  font-variant-numeric: oldstyle-nums;
+  letter-spacing: .1em;
+  color: var(--ink-faint);
+  pointer-events: none;
+}
+
+.folio--left  { left: var(--pad-outer); }
+.folio--right { right: var(--pad-outer); }
+
+/* Soft curvature along the fore-edge, and a clear hint that a page continues. */
+.page-slot::after,
+.leaf__face::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 18%;
+  z-index: 4;
+  pointer-events: none;
+  background: linear-gradient(to top, rgba(206, 191, 166, .92) 0%, rgba(214, 200, 176, .55) 34%, rgba(214, 200, 176, 0) 100%);
+}

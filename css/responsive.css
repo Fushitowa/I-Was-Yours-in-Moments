@@ -1,0 +1,257 @@
+﻿/* ==========================================================================
+   responsive.css â€” how the book changes shape
+   loaded last, so it wins on equal specificity
+
+   --chrome is the vertical space the book must leave for the stage padding
+   and the control bar. Every size formula subtracts it, so the book can never
+   grow taller than the space it actually has.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Single-page reading mode
+   phones, and any screen too narrow to hold a readable spread
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 47.99em) {
+
+  :root {
+    --chrome: 8.75rem;
+    --page-w: min(88vw, calc((100dvh - var(--chrome)) * var(--page-ratio)));
+    --page-h: calc(var(--page-w) / var(--page-ratio));
+    --book-w: var(--page-w);
+    --pad-outer: 8%;
+    --pad-inner: 8%;
+    --pad-top: 9%;
+--pad-foot: 14%;
+  }
+
+  body { font-size: 16px; }
+
+  .stage {
+    padding: 1.25rem .875rem calc(1rem + 4rem);
+    overflow-x: clip;
+  }
+
+  .book[data-state="closed"] { transform: none; }
+  .book__block { transform: rotateX(2.5deg) rotateZ(-.6deg); }
+  .book__ambient { width: 130%; bottom: 0; height: 3.5rem; }
+
+  .page-slot--left,
+  .leaf__face--back,
+  .spine { display: none; }
+
+  .page-slot--right,
+  .leaf__face--front,
+  .board--front,
+  .board--back,
+  .turn-shadow { left: 0; }
+
+  .board { top: -.4rem; height: calc(var(--page-h) + .8rem); }
+  .block-edge { right: -6px; width: 10px; }
+
+  /* The leaf is the page on a single page, so it sits on the page too.
+     Turned leaves swing out to the left, where the stage clips them. */
+  .leaf { left: 0; }
+
+  .turn-shadow,
+  .turn-shadow[data-cast="left-page"] {
+    background-image: linear-gradient(to right, rgba(30, 22, 16, .52) 0%, rgba(30, 22, 16, .18) 42%, rgba(30, 22, 16, 0) 78%);
+  }
+
+  .chapter p { font-size: 1rem; line-height: 1.62; }
+  .chapter--page .speech, .chapter--page .pullquote { font-size: 1.05rem; }
+  .chapter--page p.opener-p::first-letter { font-size: 2.9em; }
+  .folio { bottom: 5%; }
+
+  .controls__inner {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas: "meta meta" "left right";
+    gap: .6rem .75rem;
+  }
+
+  .controls__meta {
+    grid-area: meta;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .75rem;
+  }
+
+  /* Wider than the 5rem it used to be. The bar is now a drag target, and 5rem
+   gives a thumb too little travel to land on a specific page. */
+  .ribbon { width: 7rem; margin: 0; }
+  .controls__folio { margin-top: 0; }
+
+  .controls__group { gap: .5rem; }
+  .controls__group--left { grid-area: left; }
+  .controls__group--right { grid-area: right; }
+
+  .btn { min-height: 3rem; padding: .6rem .95rem; font-size: .72rem; }
+  .btn--icon .btn__label { display: none; }
+  .btn--icon { padding: .6rem .95rem; }
+  #btnOpen .btn__label,
+  #btnClose .btn__label { display: inline; }
+
+  .book.is-opening .board--front { animation-name: coverOpenSingle; }
+  .book.is-closing .board--front { animation-name: coverCloseSingle; }
+}
+
+/* The cover has nowhere to fall on a single page, so it lifts and fades. */
+@keyframes coverOpenSingle {
+  0%   { transform: translateZ(var(--cover-depth)) rotateY(0deg); opacity: 1; }
+  45%  { transform: translateZ(44px) rotateY(-84deg); opacity: 1; }
+  100% { transform: translateZ(1px) rotateY(-166deg); opacity: 0; }
+}
+
+@keyframes coverCloseSingle {
+  0%   { transform: translateZ(1px) rotateY(-166deg); opacity: 0; }
+  55%  { transform: translateZ(44px) rotateY(-84deg); opacity: 1; }
+  100% { transform: translateZ(var(--cover-depth)) rotateY(0deg); opacity: 1; }
+}
+
+/* --------------------------------------------------------------------------
+   Large phone
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 30em) and (max-width: 47.99em) {
+  :root {
+    --page-w: min(84vw, calc((100dvh - var(--chrome)) * var(--page-ratio)));
+    --pad-outer: 9%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Landscape phone
+   the page shrinks to the short axis and the chrome is trimmed
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 47.99em) and (orientation: landscape) {
+  :root {
+    --chrome: 5.75rem;
+    --page-w: min(46vw, calc((100dvh - var(--chrome)) * var(--page-ratio)));
+    --pad-top: 8%;
+    --pad-foot: 11%;
+  }
+
+  .stage { padding-block: .5rem 3.5rem; }
+  .book__ambient { bottom: 0; height: 3rem; }
+  .btn { min-height: 2.6rem; }
+  .controls__folio { display: none; }
+}
+
+/* --------------------------------------------------------------------------
+   Tablet portrait â€” one page, with room to breathe
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 48em) and (max-width: 63.99em) and (orientation: portrait) {
+  :root {
+    --chrome: 9.25rem;
+    --page-w: min(76vw, calc((100dvh - var(--chrome)) * var(--page-ratio)));
+    --page-h: calc(var(--page-w) / var(--page-ratio));
+    --book-w: var(--page-w);
+    --pad-outer: 10%;
+    --pad-inner: 10%;
+  }
+
+  .book[data-state="closed"] { transform: none; }
+  .book__block { transform: rotateX(3deg) rotateZ(-.7deg); }
+
+  .page-slot--left,
+  .leaf__face--back,
+  .spine { display: none; }
+
+  .page-slot--right,
+  .leaf__face--front,
+  .board--front,
+  .board--back,
+  .turn-shadow { left: 0; }
+
+  .leaf { left: 0; }
+
+  .turn-shadow,
+  .turn-shadow[data-cast="left-page"] {
+    background-image: linear-gradient(to right, rgba(30, 22, 16, .52) 0%, rgba(30, 22, 16, .18) 42%, rgba(30, 22, 16, 0) 78%);
+  }
+
+  .book.is-opening .board--front { animation-name: coverOpenSingle; }
+  .book.is-closing .board--front { animation-name: coverCloseSingle; }
+}
+
+/* --------------------------------------------------------------------------
+   Tablet landscape and small laptop â€” the spread returns
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 64em) {
+  :root {
+    --chrome: 8.5rem;
+    --pad-outer: 8%;
+    --pad-inner: 6%;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Laptop
+   -------------------------------------------------------------------------- */
+
+@media (min-width: 64em) and (max-width: 89.99em) {
+  :root {
+    --chrome: 8.75rem;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Desktop
+   -------------------------------------------------------------------------- */
+
+A large screen is not a reason to make the reader wait longer for the same
+   gesture, so the turn keeps one duration everywhere. */
+@media (min-width: 90em) {
+  :root {
+    --chrome: 8.75rem;
+  }
+}
+
+@media (min-width: 120em) {
+  :root { --page-h: min(880px, calc(100dvh - var(--chrome)), calc((100vw - 8rem) / 1.47)); }
+}
+
+/* --------------------------------------------------------------------------
+   Short viewports â€” a shallow laptop window, or a phone on its side
+   trim the chrome rather than let the book overflow
+   -------------------------------------------------------------------------- */
+
+@media (max-height: 34em) {
+  :root { --chrome: 5.75rem; }
+  .stage { padding-block: .5rem 3.5rem; }
+  .book__ambient { bottom: 0; height: 3rem; }
+  .controls__folio { display: none; }
+}
+
+@media (max-height: 26em) {
+  :root { --chrome: 5rem; }
+  .btn { min-height: 2.4rem; }
+  .chapter { --pad-top: 7%; --pad-foot: 10%; }
+}
+
+/* --------------------------------------------------------------------------
+   Pointer and motion preferences
+   -------------------------------------------------------------------------- */
+
+@media (hover: none) {
+  .btn:hover:not(:disabled) { background: rgba(246, 241, 230, .05); border-color: rgba(246, 241, 230, .16); }
+  .book[data-state="closed"] .board--front { cursor: default; }
+}
+
+@media print {
+  .stage { display: block; overflow: visible; }
+  .book, .book__block { transform: none; }
+  .board--front, .turn-shadow, .book__ambient, .spine, .block-edge { display: none; }
+  .page-slot, .leaf__face {
+    position: static;
+    width: 100%;
+    box-shadow: none;
+    page-break-after: always;
+  }
+  .controls, .skip-link, .notice { display: none; }
+}

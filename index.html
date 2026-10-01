@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light">
+<title>BurnMyTongue — A Letter For You</title>
+<meta name="description" content="A private letter, set as a book.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/book.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/animations.css">
+<link rel="stylesheet" href="css/responsive.css">
+</head>
+
+<body class="is-booting" data-book-state="closed">
+
+<a class="skip-link" href="#controls">Skip to reading controls</a>
+
+<p class="sr-only" id="announcer" role="status" aria-live="polite"></p>
+
+<div class="stage" id="stage">
+
+  <div
+    class="book"
+    id="book"
+    data-state="closed"
+    data-chapters="pages/arisa.html|The First Love I Never Got to Forget;pages/sorry.html|I&rsquo;m Sorry;pages/thankyou.html|Thank You;pages/acceptance.html|Acceptance;pages/final.html|The Last Page"
+  >
+
+    <div class="book__ambient" aria-hidden="true"></div>
+
+    <div class="book__block" id="bookBlock">
+
+      <div class="board board--back" aria-hidden="true">
+        <span class="board__edge"></span>
+      </div>
+
+      <div class="block-edge" aria-hidden="true"></div>
+
+      <div class="spread" id="spread">
+        <div class="page-slot page-slot--left" id="slotLeft"></div>
+        <div class="page-slot page-slot--right" id="slotRight"></div>
+      </div>
+
+      <div class="leaves" id="leaves"></div>
+
+      <div class="turn-shadow" id="turnShadow" aria-hidden="true"></div>
+
+      <div class="board board--front" id="cover">
+        <div class="board__face board__face--outside">
+          <div class="cover">
+            <div class="cover__rule" aria-hidden="true"></div>
+            <p class="cover__eyebrow">A private volume</p>
+            <h1 class="cover__title">The Girl Between<br>My Pages</h1>
+            <p class="cover__dedication">&mdash; Shairahh &mdash;</p>
+            <p class="cover__sub">A Letter Written Between the Lines</p>
+            <div class="cover__rule" aria-hidden="true"></div>
+            <p class="cover__credit">Written &amp; Developed by Kent</p>
+            <p class="cover__foot">A personal virtual book</p>
+          </div>
+        </div>
+        <div class="board__face board__face--inside" aria-hidden="true">
+          <span class="endpaper"></span>
+        </div>
+      </div>
+
+      <div class="spine" aria-hidden="true"><span class="spine__band"></span></div>
+
+    </div>
+  </div>
+</div>
+
+<div class="controls" id="controls" data-visible="false">
+
+  <div class="controls__inner">
+
+    <div class="controls__group controls__group--left">
+      <button class="btn btn--icon" type="button" id="btnOpen" data-action="open">
+        <span class="btn__glyph" aria-hidden="true">&#9654;</span>
+        <span class="btn__label">Open book</span>
+      </button>
+      <button class="btn btn--icon" type="button" id="btnPrev" data-action="prev" disabled>
+        <span class="btn__glyph" aria-hidden="true">&#9664;</span>
+        <span class="btn__label">Previous</span>
+      </button>
+    </div>
+
+    <div class="controls__meta">
+      <p class="controls__chapter" id="chapterLabel">Front matter</p>
+      <div
+        class="ribbon"
+        id="ribbon"
+        role="slider"
+        tabindex="0"
+        aria-label="Page"
+        aria-valuemin="1"
+        aria-valuemax="1"
+        aria-valuenow="1"
+        aria-valuetext="Page 1"
+      >
+        <span class="ribbon__track" aria-hidden="true">
+          <span class="ribbon__fill" id="ribbonFill"></span>
+          <span class="ribbon__handle" id="ribbonHandle"></span>
+        </span>
+      </div>
+      <p class="controls__folio" id="folioLabel">&mdash;</p>
+    </div>
+
+    <div class="controls__group controls__group--right">
+      <button class="btn btn--icon" type="button" id="btnMusic" data-action="music-toggle" aria-pressed="false">
+        <span class="btn__glyph" aria-hidden="true">&#9834;</span>
+        <span class="btn__label">Play music</span>
+      </button>
+      <button class="btn btn--icon" type="button" id="btnMute" data-action="mute-toggle" aria-pressed="true" hidden>
+        <span class="btn__glyph" aria-hidden="true">&#9834;</span>
+        <span class="btn__label">Mute</span>
+      </button>
+      <button class="btn btn--icon" type="button" id="btnNext" data-action="next" disabled>
+        <span class="btn__label">Next</span>
+        <span class="btn__glyph" aria-hidden="true">&#9654;</span>
+      </button>
+      <button class="btn btn--icon" type="button" id="btnClose" data-action="close">
+        <span class="btn__glyph" aria-hidden="true">&#10005;</span>
+        <span class="btn__label">Close book</span>
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<div class="notice" id="notice" hidden role="alert">
+  <div class="notice__panel">
+    <h2 class="notice__title">This book needs a local server</h2>
+    <p class="notice__body" id="noticeBody">
+      Browsers block page loading on <code>file://</code>. Open a terminal in the project
+      folder and run one of these, then reload:
+    </p>
+    <pre class="notice__code" id="noticeCode">python -m http.server 8000</pre>
+    <p class="notice__foot">Then visit <code>http://localhost:8000</code></p>
+  </div>
+</div>
+
+<audio id="bgMusic" src="assets/music/Totoong_tayo%28256k%29.mp3" loop preload="none"></audio>
+
+<script src="js/book.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/navigation.js"></script>
+<script src="js/music.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>

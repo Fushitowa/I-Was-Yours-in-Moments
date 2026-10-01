@@ -1,0 +1,304 @@
+﻿/* ==========================================================================
+   animations.css â€” motion
+   cover lift Â· leaf turn Â· cast shadow Â· settle
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   Opening and closing
+   -------------------------------------------------------------------------- */
+
+/* The cover is a stiff board, not a sheet: it eases off the stack, accelerates
+   through the middle, and settles. The per-step timing functions below shape
+   that; a single ease cannot produce the three phases. */
+@keyframes coverOpen {
+  0% {
+    transform: translateZ(var(--cover-depth)) rotateY(0deg);
+    animation-timing-function: cubic-bezier(.42, 0, .68, .5);
+  }
+  26% {
+    transform: translateZ(calc(var(--cover-depth) + 22px)) rotateY(-34deg);
+    animation-timing-function: cubic-bezier(.28, .48, .32, 1);
+  }
+  52% {
+    transform: translateZ(calc(var(--cover-depth) + 34px)) rotateY(-92deg);
+    animation-timing-function: cubic-bezier(.24, .62, .3, 1);
+  }
+  82% {
+    transform: translateZ(calc(var(--cover-depth) + 16px)) rotateY(-162deg);
+    animation-timing-function: cubic-bezier(.3, .5, .35, 1);
+  }
+  100% {
+    transform: translateZ(-1px) rotateY(-180deg);
+  }
+}
+
+@keyframes coverClose {
+  0% {
+    transform: translateZ(-1px) rotateY(-180deg);
+    animation-timing-function: cubic-bezier(.4, 0, .7, .4);
+  }
+  48% {
+    transform: translateZ(calc(var(--cover-depth) + 34px)) rotateY(-88deg);
+    animation-timing-function: cubic-bezier(.3, .55, .35, 1);
+  }
+  100% {
+    transform: translateZ(var(--cover-depth)) rotateY(0deg);
+  }
+}
+
+.book.is-opening .board--front {
+  animation: coverOpen var(--cover-ms) both;
+}
+
+.book.is-closing .board--front {
+  animation: coverClose var(--cover-ms) both;
+}
+
+.book.is-opening .board__face--outside,
+.book.is-closing .board__face--outside {
+  animation: none;
+}
+
+/* --------------------------------------------------------------------------
+   Leaf turn
+   -------------------------------------------------------------------------- */
+
+@keyframes leafForward {
+  0% {
+    transform: translateZ(var(--depth-from)) rotateY(0deg);
+  }
+  50% {
+    transform: translateZ(calc(var(--depth-from) + 24px)) rotateY(-89deg) rotateZ(.35deg);
+  }
+  100% {
+    transform: translateZ(var(--depth-to)) rotateY(-180deg);
+  }
+}
+
+@keyframes leafBack {
+  0% {
+    transform: translateZ(var(--depth-to)) rotateY(-180deg);
+  }
+  50% {
+    transform: translateZ(calc(var(--depth-to) + 24px)) rotateY(-91deg) rotateZ(-.35deg);
+  }
+  100% {
+    transform: translateZ(var(--depth-from)) rotateY(0deg);
+  }
+}
+
+.leaf.is-turning-forward {
+  animation: leafForward var(--turn-ms) var(--ease-turn) both;
+  will-change: transform;
+}
+
+.leaf.is-turning-back {
+  animation: leafBack var(--turn-ms) var(--ease-turn) both;
+  will-change: transform;
+}
+
+/* will-change is a promise to the compositor that this element is about to
+   move, so it is scoped to the leaf that is actually turning. Leaving it on
+   every leaf would keep ~140 layers resident and cost more than it saves. */
+
+/* Light catching the bend as the leaf passes vertical. */
+.leaf__face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to left, rgba(255, 250, 238, .5) 0%, rgba(255, 250, 238, 0) 46%);
+}
+
+/* Light catching the bend as the leaf passes vertical.
+
+   Scoped to the turning leaf on purpose. The previous selector matched every
+   face in the book, so a single turn woke up ~140 gradient overlays at once
+   and the browser animated all of them, most of them invisible. */
+.leaf.is-turning-forward .leaf__face::before,
+.leaf.is-turning-back .leaf__face::before {
+  animation: faceLight var(--turn-ms) var(--ease-turn) both;
+}
+
+@keyframes faceLight {
+  0%   { opacity: 0; }
+  40%  { opacity: .55; }
+  70%  { opacity: .22; }
+  100% { opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Cast shadow
+   -------------------------------------------------------------------------- */
+
+.turn-shadow.is-active {
+  animation: shadowSweep var(--turn-ms) var(--ease-turn) both;
+  will-change: opacity;
+}
+
+@keyframes shadowSweep {
+  0%   { opacity: 0; }
+  28%  { opacity: .92; }
+  68%  { opacity: .74; }
+  100% { opacity: 0; }
+}
+
+/* --------------------------------------------------------------------------
+   Settle
+   -------------------------------------------------------------------------- */
+
+@keyframes contentSettle {
+  from { opacity: .84; }
+  to   { opacity: 1; }
+}
+
+/* Applied to the content, never the face: a translucent face would let the
+   sheet underneath show through the paper. Tied to the turn duration so the text
+   has finished settling when the leaf lands. A fade that outlasts the turn is
+   what makes a page feel like it is still loading after it has arrived. */
+.page-slot.is-revealed .chapter,
+.leaf.is-revealed .chapter {
+  animation: contentSettle var(--turn-ms) var(--ease-turn) both;
+}
+
+/* --------------------------------------------------------------------------
+   Cover affordance
+
+   The idle motion lives on the face, never on the board. The board owns its
+   transform outright for opening and closing, and an infinite animation there
+   would outrank them and stall the turn.
+   -------------------------------------------------------------------------- */
+
+.book[data-state="closed"] .board__face--outside {
+  animation: coverIdle 6s ease-in-out infinite;
+}
+
+@keyframes coverIdle {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-.24rem); }
+}
+
+.book[data-state="closed"] .board--front:hover .board__face--outside::after,
+.book[data-state="closed"] .board--front:focus-visible .board__face--outside::after {
+  opacity: 1;
+}
+
+/* --------------------------------------------------------------------------
+   Boot
+   -------------------------------------------------------------------------- */
+
+@keyframes bookEnter {
+  from { opacity: 0; transform: translateY(1.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.is-booting .stage { opacity: 0; }
+
+.stage {
+  animation: bookEnter 1.1s var(--ease-paper) .15s both;
+}
+
+/* --------------------------------------------------------------------------
+   Chapter Four finale
+
+   The last sentence of the chapter arrives rather than appearing. One long,
+   low-opacity fade, no movement, so it reads as the page settling rather than
+   as an effect. Nothing else in the book animates its text this way.
+   -------------------------------------------------------------------------- */
+
+@keyframes vowSettle {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.chapter--page--finale .vow__line {
+  animation: vowSettle 1.6s var(--ease-paper) both;
+}
+
+.chapter--page--finale .vow__line + .vow__line {
+  animation-delay: .45s;
+}
+
+.chapter--page--finale .chapter__close {
+  animation: vowSettle 1.6s var(--ease-paper) 1.1s both;
+}
+
+/* THE END arrives the slowest of anything in the book: a three second hold
+   before the word is even visible, so the turn onto the closing page lands and
+   the reader sits with nothing on it. Collapsed under reduced motion, like the
+   Chapter Four finale. */
+@keyframes endArrive {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.chapter--end--finale .end__mark--finale {
+  animation: endArrive 2.2s var(--ease-paper) 1.4s both;
+}
+
+/* --------------------------------------------------------------------------
+   Reduced motion
+   -------------------------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+
+.book,
+  .board--front,
+  .leaf,
+  .turn-shadow,
+  .page-slot,
+  .leaf__face,
+  .ribbon__fill,
+  .vow__line,
+  .chapter--page--finale .chapter__close,
+  .chapter--end--finale .end__mark--finale {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0s !important;
+    transition-duration: 1ms !important;
+  }
+
+  .book[data-state="closed"] .board--front,
+  .book[data-state="closed"] .board__face--outside { animation: none; }
+
+  /* The entrance animation must go, not merely speed up: it holds a
+     translateY during its delay, which would push the page into a scroll. */
+  .stage { animation: none; }
+  .is-booting .stage { opacity: 1; }
+
+  .book.is-opening .board--front,
+  .book.is-closing .board--front {
+    animation: none;
+    transform: translateZ(var(--cover-depth)) rotateY(0deg);
+  }
+
+  .book[data-state="open"] .board--front {
+    transform: translateZ(-1px) rotateY(-180deg);
+  }
+
+  /* No rotation: the leaf lands in the position it was turning to. */
+  .leaf.is-turning-forward,
+  .leaf.is-turning-back {
+    animation: none;
+  }
+
+  .leaf.is-turning-forward.is-settling {
+    transform: translateZ(var(--depth-to)) rotateY(-180deg);
+  }
+
+  .leaf.is-turning-back.is-settling {
+    transform: translateZ(var(--depth-to)) rotateY(0deg);
+  }
+
+/* The bend highlight and the text fade must both be switched off by name, not
+     by animation-duration, because their selectors no longer depend on
+     .book.is-turning. */
+  .leaf__face::before,
+  .chapter {
+    animation: none;
+  }
+
+  .turn-shadow.is-active { animation: none; opacity: 0; }
+}
